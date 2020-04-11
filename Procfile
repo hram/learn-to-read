@@ -1,1 +1,1 @@
-web: java -jar build/libs/alice-jaicf-template-1.0.0-all.jar
+web: java -jar build/libs/alice-learn-to-read-1.0.0-all.jar

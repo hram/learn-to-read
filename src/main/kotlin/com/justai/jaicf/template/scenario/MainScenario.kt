@@ -12,7 +12,7 @@ object MainScenario: Scenario() {
             }
 
             action {
-                reactions.say("Майор на связи. Докладывайте.")
+                reactions.say("Капитан на связи. Докладывайте.")
                 reactions.alice?.image(
                     "https://i.imgur.com/YOnWzLM.jpg",
                     "Майор на связи",

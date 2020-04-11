@@ -1,2 +1,2 @@
-rootProject.name = "alice-jaicf-template"
+rootProject.name = "alice-learn-to-read"
 

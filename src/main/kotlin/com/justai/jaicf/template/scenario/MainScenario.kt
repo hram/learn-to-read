@@ -4,7 +4,7 @@ import com.justai.jaicf.channel.yandexalice.AliceEvent
 import com.justai.jaicf.channel.yandexalice.alice
 import com.justai.jaicf.model.scenario.Scenario
 
-object MainScenario: Scenario() {
+object MainScenario : Scenario() {
     init {
         state("main") {
             activators {
@@ -16,7 +16,8 @@ object MainScenario: Scenario() {
                 reactions.alice?.image(
                     "https://i.imgur.com/YOnWzLM.jpg",
                     "Майор на связи",
-                    "Начните сообщение со слова \"Докладываю\"")
+                    "Начните сообщение со слова \"Докладываю\""
+                )
             }
         }
 
@@ -28,12 +29,14 @@ object MainScenario: Scenario() {
             action {
                 reactions.run {
                     say("Спасибо.")
+                    val orderId = random(1000, 9000)
                     sayRandom(
-                        "Ваш донос зарегистрирован под номером ${random(1000, 9000)}.",
+                        "Ваш донос зарегистрирован под номером $orderId.",
                         "Оставайтесь на месте. Не трогайте вещественные доказательства."
                     )
                     say("У вас есть еще какая-нибудь информация?")
                     buttons("Да", "Нет")
+                    context.client["orderId"] = orderId
                 }
             }
 
@@ -43,6 +46,7 @@ object MainScenario: Scenario() {
                 }
 
                 action {
+                    reactions.say("Напоминаю ваш прошлый донос под номером ${context.client["orderId"]} обрабатывается.")
                     reactions.say("Докладывайте.")
                 }
             }
@@ -56,6 +60,7 @@ object MainScenario: Scenario() {
                 action {
                     reactions.sayRandom("Отбой.", "До связи.")
                     reactions.alice?.endSession()
+                    context.client["name"] = request.input
                 }
             }
         }

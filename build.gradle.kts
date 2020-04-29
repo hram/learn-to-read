@@ -10,6 +10,7 @@ version = "1.0.0"
 val jaicf = "0.4.0"
 val slf4j = "1.7.30"
 val ktor = "1.3.1"
+val jUnit = "5.6.0"
 
 application {
     mainClassName = "com.justai.jaicf.template.WebhookKt"
@@ -32,6 +33,9 @@ dependencies {
     implementation("com.justai.jaicf:mongo:$jaicf")
 
     implementation("io.ktor:ktor-server-netty:$ktor")
+
+    testImplementation("org.junit.jupiter:junit-jupiter-api:$jUnit")
+    testRuntime("org.junit.jupiter:junit-jupiter-engine:$jUnit")
 }
 
 tasks {
@@ -40,6 +44,9 @@ tasks {
     }
     compileTestKotlin {
         kotlinOptions.jvmTarget = "1.8"
+    }
+    test {
+        useJUnitPlatform()
     }
 }
 

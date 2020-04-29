@@ -2,9 +2,24 @@ package com.justai.jaicf.template.scenario
 
 import com.justai.jaicf.channel.yandexalice.AliceEvent
 import com.justai.jaicf.channel.yandexalice.alice
+import com.justai.jaicf.channel.yandexalice.api.alice
+import com.justai.jaicf.context.manager.mongo.MongoBotContextManager
 import com.justai.jaicf.model.scenario.Scenario
+import com.mongodb.MongoClient
+import com.mongodb.MongoClientURI
 
 object MainScenario : Scenario() {
+
+    private val dbuser = ""
+
+    private val dbpassword = ""
+
+    private val uri = MongoClientURI("mongodb://$dbuser:$dbpassword@ds055762.mlab.com:55762/heroku_9w2h7mvv")
+
+    private val client = MongoClient(uri)
+
+    private val manager = MongoBotContextManager(client.getDatabase(uri.database!!).getCollection("contexts"))
+
     init {
         state("main") {
             activators {
@@ -12,6 +27,7 @@ object MainScenario : Scenario() {
             }
 
             action {
+                manager.saveContext(context)
                 reactions.say("Капитан на связи. Докладывайте.")
                 reactions.alice?.image(
                     "https://i.imgur.com/YOnWzLM.jpg",
@@ -30,8 +46,9 @@ object MainScenario : Scenario() {
                 reactions.run {
                     say("Спасибо.")
                     val orderId = random(1000, 9000)
+                    val message = request.alice?.request!!.command
                     sayRandom(
-                        "Ваш донос зарегистрирован под номером $orderId.",
+                        "Ваш донос \"$message\" зарегистрирован под номером $orderId.",
                         "Оставайтесь на месте. Не трогайте вещественные доказательства."
                     )
                     say("У вас есть еще какая-нибудь информация?")
@@ -60,7 +77,6 @@ object MainScenario : Scenario() {
                 action {
                     reactions.sayRandom("Отбой.", "До связи.")
                     reactions.alice?.endSession()
-                    context.client["name"] = request.input
                 }
             }
         }

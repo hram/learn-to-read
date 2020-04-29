@@ -11,7 +11,7 @@ fun main() {
         routing {
             httpBotRouting("/" to AliceChannel(
                 skill,
-                System.getenv("OAUTH_TOKEN") ?: "PLACE YOUR OATH TOKEN HERE"))
+                System.getenv("OAUTH_TOKEN") ?: "AgAAAAAAvk17AAT7o9bO4KEpbULckgyYDUCEk3w"))
         }
     }.start(wait = true)
 }

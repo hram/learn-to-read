@@ -31,6 +31,7 @@ dependencies {
     implementation("com.justai.jaicf:core:$jaicf")
     implementation("com.justai.jaicf:yandex-alice:$jaicf")
     implementation("com.justai.jaicf:mongo:$jaicf")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.10.0")
 
     implementation("io.ktor:ktor-server-netty:$ktor")
 

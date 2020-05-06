@@ -8,7 +8,7 @@ import com.justai.jaicf.model.scenario.Scenario
 
 object MainScenario : Scenario() {
 
-    private val contextManager = ContextManager()
+    //private val contextManager = ContextManager()
 
     private val wordsManager = WordsManager()
 
@@ -250,7 +250,7 @@ object MainScenario : Scenario() {
             actionContext.reactions.say("Произнесите слово на картинке")
             actionContext.reactions.buttons(btSkip, btMenu)
             context.model = model
-            contextManager.manager.saveContext(actionContext.context)
+            //contextManager.manager.saveContext(actionContext.context)
         } catch (e: Exception) {
             sayError(actionContext)
         }

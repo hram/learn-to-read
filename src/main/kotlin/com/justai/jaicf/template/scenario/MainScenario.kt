@@ -8,8 +8,6 @@ import com.justai.jaicf.model.scenario.Scenario
 
 object MainScenario : Scenario() {
 
-    //private val contextManager = ContextManager()
-
     private val wordsManager = WordsManager()
 
     private const val testModeEnterCommand = "перейти в тестовый режим"
@@ -58,6 +56,8 @@ object MainScenario : Scenario() {
 
     private val rangeLong = arrayOf("1 - 5", "6 - 10", "11 - 15", "16 - 20", "21 - 25", "26 - 30", btExit)
 
+    private val congrats = arrayOf("Молодец", "Правильно", "Ура", "Ты справлся", "Великолепно", "Восхитительно")
+
     init {
         state(stateMain) {
             activators {
@@ -74,7 +74,9 @@ object MainScenario : Scenario() {
 
             state(stateMenu) {
                 activators {
+                    regex("Меню")
                     regex("меню")
+                    regex("Назад")
                     regex("назад")
                 }
 
@@ -87,11 +89,15 @@ object MainScenario : Scenario() {
         state(stateSkip) {
             activators {
                 regex("Пропустить")
+                regex("пропустить")
+                regex("Дальше")
+                regex("дальше")
             }
 
             action {
                 MyContext(context).also { context ->
                     if (hasNext(context)) {
+                        reactions.say("Не унывай. В следующий оаз обязательно получится.")
                         createCard(this, wordsManager.getWord(context.model!!.next!!))
                     } else {
                         reactions.run {
@@ -105,9 +111,11 @@ object MainScenario : Scenario() {
 
         state(stateRepeat) {
             activators {
+                regex("Повторить")
                 regex("повторить")
                 regex("Ещё раз")
                 regex("ещё раз")
+                regex("Еще раз")
                 regex("еще раз")
             }
 
@@ -120,7 +128,9 @@ object MainScenario : Scenario() {
 
         state(stateMenu) {
             activators {
+                regex("Меню")
                 regex("меню")
+                regex("Назад")
                 regex("назад")
             }
 
@@ -132,7 +142,9 @@ object MainScenario : Scenario() {
         state(stateExit) {
             activators {
                 regex("Завершить")
+                regex("завершить")
                 regex("Выход")
+                regex("выход")
             }
 
             action {
@@ -160,7 +172,9 @@ object MainScenario : Scenario() {
 
             state(stateStart) {
                 activators {
+                    regex("Начать")
                     regex("начать")
+                    regex("Старт")
                     regex("старт")
                 }
 
@@ -173,7 +187,9 @@ object MainScenario : Scenario() {
 
             state(stateMenu) {
                 activators {
+                    regex("Меню")
                     regex("меню")
+                    regex("Назад")
                     regex("назад")
                 }
 
@@ -197,8 +213,9 @@ object MainScenario : Scenario() {
                 MyContext(context).also { context ->
                     context.model?.also { model ->
                         if (model.word == message) {
+                            context.wordsLearned++
                             if (hasNext(context)) {
-                                reactions.sayRandom("Молодец", "Правильно", "Ура")
+                                reactions.sayRandom(*congrats)
                                 createCard(this, wordsManager.getWord(model.next!!))
                             } else {
                                 reactions.run {
@@ -207,7 +224,7 @@ object MainScenario : Scenario() {
                                 }
                             }
                         } else {
-                            reactions.say("Попробуй еще раз")
+                            reactions.sayRandom("Попробуй еще раз", "Что то пошло е так", "Сожалею но нет", "Не торопись. У тебя всё получится", "Всегда можно пропустить слово и перейти к новому.")
                             createCard(this, model)
                         }
                     } ?: run {
@@ -247,7 +264,9 @@ object MainScenario : Scenario() {
         try {
             val context = MyContext(actionContext.context)
             actionContext.reactions.alice?.image("http://hram0v.com/learn-to-read/${model.imageUrl}.png")
-            actionContext.reactions.say("Произнесите слово на картинке")
+            if (context.wordsLearned < 10) {
+                actionContext.reactions.say("Произнесите слово на картинке")
+            }
             actionContext.reactions.buttons(btSkip, btMenu)
             context.model = model
             //contextManager.manager.saveContext(actionContext.context)

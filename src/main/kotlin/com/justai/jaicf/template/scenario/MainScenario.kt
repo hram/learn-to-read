@@ -97,7 +97,7 @@ object MainScenario : Scenario() {
             action {
                 MyContext(context).also { context ->
                     if (hasNext(context)) {
-                        reactions.say("Не унывай. В следующий оаз обязательно получится.")
+                        reactions.say("Не унывай. В следующий раз обязательно получится.")
                         createCard(this, wordsManager.getWord(context.model!!.next!!))
                     } else {
                         reactions.run {

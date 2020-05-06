@@ -6,4 +6,5 @@ class MyContext(context: BotContext) {
     var choosedLength: Int? by context.client
     var model: WordModel? by context.client
     var testMode: Boolean? by context.client
+    var wordsLearned: Int by context.client
 }

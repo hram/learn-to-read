@@ -213,7 +213,10 @@ object MainScenario : Scenario() {
                 MyContext(context).also { context ->
                     context.model?.also { model ->
                         if (model.word == message) {
-                            context.wordsLearned++
+                            if (context.wordsLearned == null) {
+                                context.wordsLearned = 0
+                            }
+                            context.wordsLearned = context.wordsLearned!! + 1
                             if (hasNext(context)) {
                                 reactions.sayRandom(*congrats)
                                 createCard(this, wordsManager.getWord(model.next!!))
@@ -264,7 +267,7 @@ object MainScenario : Scenario() {
         try {
             val context = MyContext(actionContext.context)
             actionContext.reactions.alice?.image("http://hram0v.com/learn-to-read/${model.imageUrl}.png")
-            if (context.wordsLearned < 10) {
+            if (context.wordsLearned == null || context.wordsLearned!! < 10) {
                 actionContext.reactions.say("Произнесите слово на картинке")
             }
             actionContext.reactions.buttons(btSkip, btMenu)

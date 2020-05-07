@@ -3,6 +3,7 @@ package com.justai.jaicf.template.scenario
 import com.justai.jaicf.channel.yandexalice.AliceEvent
 import com.justai.jaicf.channel.yandexalice.alice
 import com.justai.jaicf.channel.yandexalice.api.alice
+import com.justai.jaicf.channel.yandexalice.api.model.Image
 import com.justai.jaicf.context.ActionContext
 import com.justai.jaicf.model.scenario.Scenario
 
@@ -266,7 +267,7 @@ object MainScenario : Scenario() {
     private fun createCard(actionContext: ActionContext, model: WordModel) {
         try {
             val context = MyContext(actionContext.context)
-            actionContext.reactions.alice?.image("http://hram0v.com/learn-to-read/${model.imageUrl}.png")
+            actionContext.reactions.alice?.image(Image(model.imageUrl))
             if (context.wordsLearned == null || context.wordsLearned!! < 10) {
                 actionContext.reactions.say("Произнесите слово на картинке")
             }

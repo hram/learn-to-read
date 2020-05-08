@@ -126,6 +126,7 @@ object MainScenario : Scenario(dependencies = listOf(HelperScenario)), WithLogge
 
             action {
                 logger.info("Action $path")
+                logger.info("Request ${request.alice?.request}")
                 val message = request.alice?.request!!.command
                 when (message) {
                     testModeEnterCommand -> {

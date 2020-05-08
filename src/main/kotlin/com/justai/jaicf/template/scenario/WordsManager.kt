@@ -16,7 +16,7 @@ class WordsManager() : BaseManager() {
 
     fun getWords(length: Int): List<WordModel> {
         val list: MutableList<WordModel> = mutableListOf()
-        collection.find(Filters.eq("length", length)).forEach { item ->
+        collection.find(eq("length", length)).sort(Document("index", 1)).forEach { item ->
             val model = mapper.readValue(item.toJson(), WordModel::class.java)
             list.add(model)
         }
@@ -24,7 +24,7 @@ class WordsManager() : BaseManager() {
     }
 
     fun getWord(word: String): WordModel {
-        return mapper.readValue(collection.find(Filters.eq("_id", word)).first().toJson(), WordModel::class.java)
+        return mapper.readValue(collection.find(eq("_id", word)).first().toJson(), WordModel::class.java)
     }
 
     fun getFirstWord(length: Int): WordModel {
@@ -38,6 +38,10 @@ class WordsManager() : BaseManager() {
 
     fun replaceOne(model: WordModel) {
         val doc = Document.parse(mapper.writeValueAsString(model))
-        collection.replaceOne(Filters.eq("_id", model._id), doc, UpdateOptions().upsert(true))
+        collection.replaceOne(eq("_id", model._id), doc, UpdateOptions().upsert(true))
+    }
+
+    fun deleteWordById(id: String) {
+        collection.deleteOne(eq("_id", id))
     }
 }

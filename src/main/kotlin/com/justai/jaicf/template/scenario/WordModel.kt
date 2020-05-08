@@ -5,6 +5,6 @@ data class WordModel(
     val index: Int,
     val word: String,
     val length: Int,
-    val imageUrl: String,
+    var imageUrl: String,
     val next: String? = null
 )

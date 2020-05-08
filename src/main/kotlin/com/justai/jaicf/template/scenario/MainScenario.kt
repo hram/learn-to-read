@@ -5,59 +5,13 @@ import com.justai.jaicf.channel.yandexalice.alice
 import com.justai.jaicf.channel.yandexalice.api.alice
 import com.justai.jaicf.channel.yandexalice.api.model.Image
 import com.justai.jaicf.context.ActionContext
+import com.justai.jaicf.helpers.logging.WithLogger
 import com.justai.jaicf.model.scenario.Scenario
+import com.justai.jaicf.reactions.Reactions
 
-object MainScenario : Scenario() {
+object MainScenario : Scenario(dependencies = listOf(HelperScenario)), WithLogger {
 
     private val wordsManager = WordsManager()
-
-    private const val testModeEnterCommand = "перейти в тестовый режим"
-
-    private const val testModeExitCommand = "выйти из тестового режима"
-
-    private const val chooseLength = "Уточните выбор. Произнесите цифру или выберите из списка."
-
-    private const val chooseRangeShort = "Выберите длину слова от 1 до 5."
-
-    private const val chooseRangeLong = "Выберите длину слова от 1 до 30."
-
-    private const val btMenu = "Меню"
-
-    private const val btRepeat = "Ещё раз"
-
-    private const val btStart = "Старт"
-
-    private const val btSkip = "Пропустить"
-
-    private const val btExit = "Выход"
-
-    private const val stateMain = "main"
-
-    private const val stateMenu = "menu"
-
-    private const val stateStart = "start"
-
-    private const val stateSkip = "skip"
-
-    private const val stateRepeat = "repeat"
-
-    private const val stateExit = "exit"
-
-    private const val stateFallback = "fallback"
-
-    private const val stateChooseLength = "chooseLength"
-
-    private const val stateChooseRange = "chooseRange"
-
-    private val regexChooseRange = """(\d+) - (\d+)""".toRegex()
-
-    private val regexChooseLength = "^[0-9]+\$".toRegex()
-
-    private val rangeShort = arrayOf("1 - 5", btExit)
-
-    private val rangeLong = arrayOf("1 - 5", "6 - 10", "11 - 15", "16 - 20", "21 - 25", "26 - 30", btExit)
-
-    private val congrats = arrayOf("Молодец", "Правильно", "Ура", "Ты справлся", "Великолепно", "Восхитительно")
 
     init {
         state(stateMain) {
@@ -66,108 +20,13 @@ object MainScenario : Scenario() {
             }
 
             action {
+                logger.info("Action $path")
                 MyContext(context).model?.also {
+                    reactions.sayWithDelay(random("Я рада что вы вернулись", "Продолжим", "С возвращением", "Я рада что вы про меня вспомнили"))
                     createCard(this, wordsManager.getWord(it.word))
                 } ?: run {
-                    sayHello(this)
-                }
-            }
-
-            state(stateMenu) {
-                activators {
-                    regex("Меню")
-                    regex("меню")
-                    regex("Назад")
-                    regex("назад")
-                }
-
-                action {
-                    reactions.go("/$stateMenu")
-                }
-            }
-        }
-
-        state(stateSkip) {
-            activators {
-                regex("Пропустить")
-                regex("пропустить")
-                regex("Дальше")
-                regex("дальше")
-            }
-
-            action {
-                MyContext(context).also { context ->
-                    if (hasNext(context)) {
-                        reactions.say("Не унывай. В следующий раз обязательно получится.")
-                        createCard(this, wordsManager.getWord(context.model!!.next!!))
-                    } else {
-                        reactions.run {
-                            say("Поздравляю вы прочитали все слова длиной ${context.choosedLength}")
-                            buttons(btRepeat, btMenu)
-                        }
-                    }
-                }
-            }
-        }
-
-        state(stateRepeat) {
-            activators {
-                regex("Повторить")
-                regex("повторить")
-                regex("Ещё раз")
-                regex("ещё раз")
-                regex("Еще раз")
-                regex("еще раз")
-            }
-
-            action {
-                val context = MyContext(context)
-                val word = wordsManager.getFirstWord(context.choosedLength!!)
-                createCard(this, word)
-            }
-        }
-
-        state(stateMenu) {
-            activators {
-                regex("Меню")
-                regex("меню")
-                regex("Назад")
-                regex("назад")
-            }
-
-            action {
-                sayHello(this)
-            }
-        }
-
-        state(stateExit) {
-            activators {
-                regex("Завершить")
-                regex("завершить")
-                regex("Выход")
-                regex("выход")
-            }
-
-            action {
-                reactions.sayRandom("До скорой встречи.", "До связи.")
-                reactions.alice?.endSession()
-            }
-        }
-
-        state(stateChooseLength) {
-            activators {
-                regex(regexChooseLength)
-            }
-
-            action {
-                val context = MyContext(context)
-                val message = request.alice?.request!!.command
-                reactions.run {
-                    say("Вы выбрали размер слова $message.")
-                    say("Чтобы приступить к изучению скажите - старт")
-                    say("Чтобы выбрать другой размер слова скажите - меню")
-                    buttons(btStart, btMenu)
-                    context.choosedLength = message.toInt()
+                    logger.info("Show menu")
+                    reactions.showMenu(MyContext(context))
                 }
             }
 
@@ -180,9 +39,34 @@ object MainScenario : Scenario() {
                 }
 
                 action {
+                    logger.info("Action $path")
                     val context = MyContext(context)
                     val word = wordsManager.getFirstWord(context.choosedLength!!)
                     createCard(this, word)
+                }
+            }
+
+            state(stateSkip) {
+                activators {
+                    regex("Пропустить")
+                    regex("пропустить")
+                    regex("Дальше")
+                    regex("дальше")
+                }
+
+                action {
+                    logger.info("Action $path")
+                    MyContext(context).also { context ->
+                        if (hasNext(context)) {
+                            reactions.sayWithDelay("Не унывай. В следующий раз обязательно получится.")
+                            createCard(this, wordsManager.getWord(context.model!!.next!!))
+                        } else {
+                            reactions.run {
+                                say("Поздравляю вы прочитали все слова длиной ${context.choosedLength}")
+                                buttons(btRepeat, btMenu)
+                            }
+                        }
+                    }
                 }
             }
 
@@ -195,8 +79,42 @@ object MainScenario : Scenario() {
                 }
 
                 action {
-                    reactions.go("/$stateMenu")
+                    logger.info("Action $path")
+                    reactions.showMenu(MyContext(context))
                 }
+            }
+
+            state(stateRepeat) {
+                activators {
+                    regex("Повторить")
+                    regex("повторить")
+                    regex("Ещё раз")
+                    regex("ещё раз")
+                    regex("Еще раз")
+                    regex("еще раз")
+                }
+
+                action {
+                    logger.info("Action $path")
+                    val context = MyContext(context)
+                    val word = wordsManager.getFirstWord(context.choosedLength!!)
+                    createCard(this, word)
+                }
+            }
+        }
+
+        state(stateExit) {
+            activators {
+                regex("Завершить")
+                regex("завершить")
+                regex("Выход")
+                regex("выход")
+            }
+
+            action {
+                logger.info("Action $path")
+                reactions.sayRandom("До скорой встречи.", "До связи.")
+                reactions.alice?.endSession()
             }
         }
 
@@ -206,10 +124,17 @@ object MainScenario : Scenario() {
             }
 
             action {
+                logger.info("Action $path")
                 val message = request.alice?.request!!.command
                 when (message) {
-                    testModeEnterCommand -> MyContext(context).testMode = true
-                    testModeExitCommand -> MyContext(context).testMode = false
+                    testModeEnterCommand -> {
+                        logger.info("Test mode enter")
+                        MyContext(context).testMode = true
+                    }
+                    testModeExitCommand -> {
+                        logger.info("Test mode exit")
+                        MyContext(context).testMode = false
+                    }
                 }
                 MyContext(context).also { context ->
                     context.model?.also { model ->
@@ -219,7 +144,7 @@ object MainScenario : Scenario() {
                             }
                             context.wordsLearned = context.wordsLearned!! + 1
                             if (hasNext(context)) {
-                                reactions.sayRandom(*congrats)
+                                reactions.sayWithDelay(random(*congrats))
                                 createCard(this, wordsManager.getWord(model.next!!))
                             } else {
                                 reactions.run {
@@ -228,43 +153,19 @@ object MainScenario : Scenario() {
                                 }
                             }
                         } else {
-                            reactions.sayRandom("Попробуй еще раз", "Что то пошло е так", "Сожалею но нет", "Не торопись. У тебя всё получится", "Всегда можно пропустить слово и перейти к новому.")
+                            reactions.sayWithDelay(random("Попробуй еще раз", "Что то пошло е так", "Сожалею но нет", "Не торопись. У тебя всё получится", "Всегда можно пропустить слово и перейти к новому."))
                             createCard(this, model)
                         }
                     } ?: run {
-                        sayHello(this)
+                        reactions.showMenu(context)
                     }
                 }
             }
         }
-
-        state(stateChooseRange) {
-            activators {
-                regex(regexChooseRange)
-            }
-
-            action {
-                chooseLength(this)
-            }
-        }
-    }
-
-    private fun chooseLength(actionContext: ActionContext) {
-        val res = regexChooseRange.find(actionContext.request.alice?.request!!.command)!!
-        val from = res.groups[1]!!.value.toInt()
-        val to = res.groups[2]!!.value.toInt()
-        val buttonsArray = mutableListOf<String>()
-        (from..to).forEach {
-            buttonsArray.add(it.toString())
-        }
-        buttonsArray.add(btMenu)
-        actionContext.reactions.run {
-            say(chooseLength)
-            buttons(*buttonsArray.toTypedArray())
-        }
     }
 
     private fun createCard(actionContext: ActionContext, model: WordModel) {
+        logger.info("Create card ${model.word}")
         try {
             val context = MyContext(actionContext.context)
             actionContext.reactions.alice?.image(Image(model.imageUrl))
@@ -273,28 +174,8 @@ object MainScenario : Scenario() {
             }
             actionContext.reactions.buttons(btSkip, btMenu)
             context.model = model
-            //contextManager.manager.saveContext(actionContext.context)
         } catch (e: Exception) {
             sayError(actionContext)
-        }
-    }
-
-    private fun sayHello(actionContext: ActionContext) {
-        actionContext.reactions.run {
-            say("Приветствую.")
-            say("Я помогу вам научиться читать.")
-            if (MyContext(actionContext.context).testMode == true) {
-                say(chooseRangeShort)
-            } else {
-                say(chooseRangeLong)
-            }
-            say("Произнесите цифру вслух или выберите диапазон.")
-            if (MyContext(actionContext.context).testMode == true) {
-                actionContext.reactions.buttons(*rangeShort)
-            } else {
-                actionContext.reactions.buttons(*rangeLong)
-            }
-            MyContext(actionContext.context).model = null
         }
     }
 
@@ -329,3 +210,5 @@ object MainScenario : Scenario() {
         return hasNext
     }
 }
+
+fun Reactions.sayWithDelay(text: String, delay: Long = 1000) = alice!!.say(text, "$text <[pau]>")

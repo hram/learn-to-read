@@ -39,6 +39,7 @@ object MainScenario : Scenario(dependencies = listOf(HelperScenario)), WithLogge
 
                 action {
                     logger.info("Action $path")
+                    reactions.sayWithDelay(random("Поздравляю вы сделали правильный выбор", "Ну что, начнем", "Приступим к обучению", "занятие начинается"))
                     val context = MyContext(context)
                     val word = wordsManager.getFirstWord(context.choosedLength!!)
                     createCard(this, word)

@@ -22,6 +22,7 @@ object MainScenario : Scenario(dependencies = listOf(HelperScenario)), WithLogge
             action {
                 logger.info("Action $path")
                 MyContext(context).model?.also {
+                    reactions.sayWithDelay(random("С возвращением", "Рада снова видеть тебя", "Где ты так долго пропадал?", "Я рада что ты про меня вспомнил", "Ура ты вернулся"))
                     createCard(this, wordsManager.getWord(it.word))
                 } ?: run {
                     logger.info("Show menu")
@@ -39,7 +40,7 @@ object MainScenario : Scenario(dependencies = listOf(HelperScenario)), WithLogge
 
                 action {
                     logger.info("Action $path")
-                    reactions.sayWithDelay(random("Поздравляю вы сделали правильный выбор", "Ну что, начнем", "Приступим к обучению", "занятие начинается"))
+                    reactions.sayWithDelay(random("Поздравляю вы сделали правильный выбор", "Ну что, начнем", "Приступим к обучению", "Занятие начинается"))
                     val context = MyContext(context)
                     val word = wordsManager.getFirstWord(context.choosedLength!!)
                     createCard(this, word)

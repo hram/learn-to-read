@@ -210,4 +210,4 @@ object MainScenario : Scenario(dependencies = listOf(HelperScenario)), WithLogge
     }
 }
 
-fun Reactions.sayWithDelay(text: String, delay: Long = 1000) = alice!!.say(text, "$text <[pau]>")
+fun Reactions.sayWithDelay(text: String, delay: Long = 1000) = alice!!.say(text, "$text sil <[delay]>")

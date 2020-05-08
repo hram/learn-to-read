@@ -22,7 +22,6 @@ object MainScenario : Scenario(dependencies = listOf(HelperScenario)), WithLogge
             action {
                 logger.info("Action $path")
                 MyContext(context).model?.also {
-                    reactions.sayWithDelay(random("Я рада что вы вернулись", "Продолжим", "С возвращением", "Я рада что вы про меня вспомнили"))
                     createCard(this, wordsManager.getWord(it.word))
                 } ?: run {
                     logger.info("Show menu")
@@ -58,7 +57,7 @@ object MainScenario : Scenario(dependencies = listOf(HelperScenario)), WithLogge
                     logger.info("Action $path")
                     MyContext(context).also { context ->
                         if (hasNext(context)) {
-                            reactions.sayWithDelay("Не унывай. В следующий раз обязательно получится.")
+                            reactions.sayRandom("Не унывай. В следующий раз обязательно получится.")
                             createCard(this, wordsManager.getWord(context.model!!.next!!))
                         } else {
                             reactions.run {
@@ -144,7 +143,7 @@ object MainScenario : Scenario(dependencies = listOf(HelperScenario)), WithLogge
                             }
                             context.wordsLearned = context.wordsLearned!! + 1
                             if (hasNext(context)) {
-                                reactions.sayWithDelay(random(*congrats))
+                                reactions.sayRandom(*congrats)
                                 createCard(this, wordsManager.getWord(model.next!!))
                             } else {
                                 reactions.run {

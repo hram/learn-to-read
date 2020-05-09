@@ -13,6 +13,8 @@ object MainScenario : Scenario(dependencies = listOf(HelperScenario)), WithLogge
 
     private val wordsManager = WordsManager()
 
+    private val mather = AnswerMather()
+
     init {
         state(stateMain) {
             activators {
@@ -128,22 +130,24 @@ object MainScenario : Scenario(dependencies = listOf(HelperScenario)), WithLogge
                 logger.info("Action $path")
                 logger.info("Request ${request.alice?.request}")
                 val message = request.alice?.request!!.originalUtterance
-                when (message) {
-                    testModeEnterCommand -> {
+                when {
+                    mather.isMatch(testModeEnterCommand, message) -> {
                         logger.info("Test mode enter")
                         MyContext(context).testMode = true
                     }
-                    testModeExitCommand -> {
+                    mather.isMatch(testModeExitCommand, message) -> {
                         logger.info("Test mode exit")
                         MyContext(context).testMode = false
                     }
                 }
+
                 MyContext(context).also { context ->
                     context.model?.also { model ->
-                        if (model.word == message) {
+                        if (mather.isMatch(model.word, message)) {
                             if (context.wordsLearned == null) {
                                 context.wordsLearned = 0
                             }
+
                             context.wordsLearned = context.wordsLearned!! + 1
                             if (hasNext(context)) {
                                 reactions.sayWithDelay(random(*congrats))

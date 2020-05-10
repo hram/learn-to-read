@@ -8,12 +8,21 @@ import com.justai.jaicf.context.ActionContext
 import com.justai.jaicf.helpers.logging.WithLogger
 import com.justai.jaicf.model.scenario.Scenario
 import com.justai.jaicf.reactions.Reactions
+import java.text.SimpleDateFormat
+import java.util.UUID
+import java.util.Date
 
 object MainScenario : Scenario(dependencies = listOf(HelperScenario)), WithLogger {
 
     private val wordsManager = WordsManager()
 
+    private val errorsManager = ErrorsManager()
+
+    private val successManager = SuccessManager()
+
     private val mather = AnswerMather()
+
+    private val dateFormatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 
     init {
         state(stateMain) {
@@ -141,15 +150,16 @@ object MainScenario : Scenario(dependencies = listOf(HelperScenario)), WithLogge
                     }
                 }
 
-                MyContext(context).also { context ->
-                    context.model?.also { model ->
+                MyContext(context).also { myContext ->
+                    myContext.model?.also { model ->
                         if (mather.isMatch(model.word, message)) {
-                            if (context.wordsLearned == null) {
-                                context.wordsLearned = 0
+                            successManager.insertOne(SuccessModel(UUID.randomUUID().toString(), model.word, model.length, model.index, dateFormatter.format(Date()), context.clientId))
+                            if (myContext.wordsLearned == null) {
+                                myContext.wordsLearned = 0
                             }
 
-                            context.wordsLearned = context.wordsLearned!! + 1
-                            if (hasNext(context)) {
+                            myContext.wordsLearned = myContext.wordsLearned!! + 1
+                            if (hasNext(myContext)) {
                                 reactions.sayWithDelay(random(*congrats))
                                 createCard(this, wordsManager.getWord(model.next!!))
                             } else {
@@ -159,11 +169,12 @@ object MainScenario : Scenario(dependencies = listOf(HelperScenario)), WithLogge
                                 }
                             }
                         } else {
+                            errorsManager.insertOne(ErrorModel(UUID.randomUUID().toString(), model.word, message, model.word.length, dateFormatter.format(Date()), context.clientId))
                             reactions.sayWithDelay(random("Попробуй еще раз", "Что то пошло е так", "Сожалею но нет", "Не торопись. У тебя всё получится", "Всегда можно пропустить слово и перейти к новому."))
                             createCard(this, model)
                         }
                     } ?: run {
-                        reactions.showMenu(context)
+                        reactions.showMenu(myContext)
                     }
                 }
             }
